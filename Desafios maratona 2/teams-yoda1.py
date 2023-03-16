@@ -1,4 +1,4 @@
-# 3 (works, better?) iterates 2x over nOfPlayers, 1x over nOfTeams, 1x over finished team.
+# v3 (works, better?) iterates 2x over nOfPlayers, 1x over nOfTeams, 1x over finished team.
 # 1 less lambda sort
 def main():
     nOfPlayers, nOfTeams = [int(x) for x in input().split()]
@@ -23,11 +23,12 @@ def main():
         for player in team:
             print(player)
         print()
-
+sor
 
 main()
 
-# 2 (works, better) iterates 2x over nOfPlayers, 1x over nOfTeams, 1x over finished team.
+###########
+# v2 (works, better) iterates 3x over nOfPlayers, 1x over nOfTeams, 1x over finished team.
 # nOfPlayers, nOfTeams = [int(x) for x in input().split()]
 
 # players = []
@@ -55,7 +56,8 @@ main()
 #         print(player[0])
 #     print()
 
-# 1 (accepted)
+##############
+# v1 (accepted)
 # nOfPlayers, nOfTeams = [int(x) for x in input().split()]
 
 # players = []
@@ -81,6 +83,9 @@ main()
 #         print(player[0])
 #     print()
 
+###
+# test case input
+# 14 3
 # felipe 4
 # alvaro 8
 # thiago 1

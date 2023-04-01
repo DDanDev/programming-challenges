@@ -2,6 +2,11 @@
 const inLine = document.getElementById("input");
 const output = document.getElementById("output");
 
+let debugMessages = false
+function log(msg) {
+	if (debugMessages) log(msg)
+}
+
 function printOut(...content) {
 	actuallyPrint(content, "outLog");
 }
@@ -11,40 +16,41 @@ function printSys(...content) {
 }
 
 function actuallyPrint(content, className) {
-	console.log(`${className}: ${content}`);
-	content = String(content).replace(/ /gi, "&nbsp");
-	output.innerHTML += `<p class="${className}">${content}</p>`;
+	log(`${className}: ${content}`);
+	output.innerHTML += `<p class="${className}">${String(content).replace(/ /gi, "&nbsp")}</p>`;
 }
 
+function unprint() {
+	output.querySelector(":nth-last-child(1)").remove();
+}
+
+let tempinput = "";
+let listener = (e) => {
+	tempinput = e.target.value;
+	actuallyPrint(`>>${e.target.value}`, "inLog");
+	e.target.value = "";
+	e.target.id = "";
+	log("returning input: " + tempinput);
+};
+inLine.addEventListener("change", listener);
+
 async function input(msg) {
-	// enableInput(msg);
 	inLine.id = "inActive";
-	inLine.placeholder = msg ? ">> " + msg : ">> type input";
-	let tempinput = "";
-	let listener = (e) => {
-		//assign var
-		tempinput = e.target.value;
-		//log and clear
-		// handleInput(e);
-		actuallyPrint(`>>${e.target.value}`, "inLog");
-		e.target.value = "";
-		e.target.id = "";
-		inLine.removeEventListener("change", listener);
-		//do
-		console.log("returning input: " + tempinput);
-	};
-	inLine.addEventListener("change", listener);
-	await new Promise((resolve) => {
+	inLine.placeholder = msg ? msg : "type input";
+	inLine.focus();
+	tempinput = "";
+	return await new Promise((res) => {
 		let waiting = setInterval(() => {
 			if (tempinput) {
 				clearInterval(waiting);
-				resolve();
+				res(tempinput);
 			}
 		}, 200);
 	});
-	return tempinput;
 }
-listofapps = ["dancingSentence", "balloons"];
+
+//menu
+let listofapps = ["dancingSentence", "balloons", "sudoku"];
 printSys(`pseudo cli to practice js coding with input and output`);
 async function startCLI() {
 	printSys(`<hr>`);
@@ -54,6 +60,8 @@ async function startCLI() {
 	else startCLI();
 }
 startCLI();
+
+//modules
 async function dancingSentence() {
 	printSys(">>Dancing Sentences started<<");
 	//////code
@@ -79,7 +87,11 @@ async function balloons() {
 	printSys(">>Balloons started<<");
 	//////code
 	while (true) {
-		let [rows, cols, pos] = (await input("Rows, Cols, Entry Col (integers separated by a space) - 0 0 0 to exit")).split(" ").map((x) => parseInt(x));
+		let rows, cols, pos;
+		while (true) {
+			[rows, cols, pos] = (await input("Rows, Cols, Entry Col (integers separated by a space) - 0 0 0 to exit")).split(" ").map((x) => parseInt(x));
+			if (!(isNaN(rows) || isNaN(cols) || isNaN(pos))) break;
+		}
 		if (rows === 0 && cols === 0 && pos === 0) break;
 
 		let row, brokeat, leftfani, rightfani;
@@ -124,10 +136,89 @@ async function balloons() {
 				await input(`ventiladores da fileira (pode pular, ja explodiu)${i + 1}`);
 			}
 		}
-
-		// debugger;
 	}
+	////////end
+	startCLI();
+}
+async function sudoku() {
+	printSys(">>sudoku verifier started<<");
+	//////code
+	let mistakeInSet = (sudokuSet, group) => {
+		let founderror = false;
+		for (let subseti in sudokuSet) {
+			if (!(new Set(sudokuSet[subseti]).size === 9)) {
+				log(subseti);
+				printOut(`Incorrect at ${group} ${parseInt(subseti) + 1}`);
+				founderror = true;
+			}
+		}
+		return founderror;
+	};
+	while (true) {
+		//get input for sudoku table, validating each input
+		let sudokutable = [];
+		let promptmsg = (resetpromptmsg = "enter sudoku line or *exit*");
+		try {
+			for (let i = 0; i < 9; i++) {
+				log(`input n ${i + 1}`);
+				try {
+					sudokutable.push(
+						(await input(promptmsg)).split(" ").map((x) => {
+							if (x === "*exit*") throw x;
+							if (`${x}`.match(/[a-z]/gi)) throw "incorrect";
+							x = parseInt(x);
+							if (isNaN(x) || x < 1 || x > 9) throw "incorrect";
+							return x;
+						})
+					);
+					if (sudokutable[sudokutable.length - 1].length !== 9) {
+						sudokutable.pop()
+						throw "incorrect";
+					}
+					promptmsg = resetpromptmsg;
+				} catch (err) {
+					if (err === "incorrect") {
+						i--;
+						log(`repeating line`);
+						promptmsg = "insert last line again or *exit*";
+						unprint();
+					} else throw err;
+				}
+				log(`table: [[${sudokutable.join("], [")}]]`);
+			}
+		} catch (err) {
+			break;
+		}
+		log(`finished table:`, sudokutable);
+		
+		//check lines
+		let mistakefound = mistakeInSet(sudokutable, "row") ? true : false;
 
+		//list columns
+		let rotate = [];
+		for (let row = 0; row < 9; row++) {
+			rotate[row] = [];
+			for (let column = 0; column < 9; column++) {
+				rotate[row][column] = sudokutable[column][row];
+			}
+		}
+		//check columns
+		mistakefound = mistakeInSet(rotate, "column") ? true : mistakefound;
+
+		//list blocks
+		let blocks = [];
+		for (let rowgroup = 0; rowgroup < 3; rowgroup++) {
+			for (let colgroup = 0; colgroup < 3; colgroup++) {
+				let pieces = sudokutable.slice(rowgroup * 3, rowgroup * 3 + 3).map((x) => x.slice(colgroup * 3, colgroup * 3 + 3));
+				blocks.push([...pieces[0], ...pieces[1], ...pieces[2]]);
+			}
+		}
+		//check blocks
+		mistakefound = mistakeInSet(blocks, "block") ? true : mistakefound;
+
+		if (!mistakefound) printOut("Correct sudoku resolution! Start again or *exit*");
+		else printOut("Try again or *exit*");
+	}
 	////////end
 	startCLI();
 }

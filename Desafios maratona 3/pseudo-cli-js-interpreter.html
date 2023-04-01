@@ -9,34 +9,43 @@
 		<style>
 			*:not(hr) {
 				margin: 0;
-				width: 100%;
-                border: none;
+				padding: 0;
+				border: none;
+				outline: none;
+				font-size: 16px;
+				font-family: sans-serif;
 			}
-            body, input {
-                background: black;
-            }
-            input, .inLog {
-                color: yellow;
-            }
-            .outLog {
-                color: white;
-            }
-            .sysLog {
-                color: aqua;
-                text-align: center;
-            }
-            input {
-                display: none;
-            }
-            #inActive {
-                display: block;
-            }
+			body,
+			input {
+				background: black;
+			}
+			input,
+			label,
+			.inLog {
+				color: yellow;
+			}
+			.outLog {
+				color: white;
+			}
+			.sysLog {
+				color: aqua;
+				text-align: center;
+			}
+			label {
+				display: none;
+			}
+			#inActive {
+				flex-grow: 1;
+			}
+			label:has(#inActive) {
+				flex-grow: 0;
+				display: flex;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="output"></div>
-		<!-- <hr /> -->
-		<input type="text" id="input" placeholder=">> type input"/>
+		<label for="input">>><input type="text" id="input" placeholder=">> type input" /></label>
 		<script src="pseudocliinterpreter.js"></script>
 	</body>
 </html>

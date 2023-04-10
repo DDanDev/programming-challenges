@@ -1,0 +1,5 @@
+altura = float(input())
+sexo = input()
+if sexo == "masculino": print(f'{((72.7 * altura) - 58):.1f}')
+elif sexo == "feminino": print(f'{((62.1 * altura) - 44.7):.1f}')
+else: print("Entrada não é válida")

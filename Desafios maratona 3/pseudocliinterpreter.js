@@ -39,7 +39,7 @@ async function input(msg) {
 	inLine.placeholder = msg ? msg : "type input";
 	inLine.focus();
 	tempinput = "";
-	return await new Promise((res) => {
+	return new Promise((res) => {
 		let waiting = setInterval(() => {
 			if (tempinput) {
 				clearInterval(waiting);
